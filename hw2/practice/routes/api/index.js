@@ -28,6 +28,7 @@ router.get('/', (req, res) => { // get method로 api/ 요청이 들어온다면
 router.use('/blog', require('./blog'));
 router.use('/blog2', require('./blog2'));
 router.use('/users', require('./users'));
+router.use('/users2', require('./users2'));
 // 저장 꼭 해주기~~~
 
 module.exports = router; // 생성한 router 객체를 모듈로 반환

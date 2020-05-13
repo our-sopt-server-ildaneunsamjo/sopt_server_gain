@@ -14,5 +14,19 @@ module.exports = {
     MISS_MATCH_PW: "비밀번호가 맞지 않습니다.",
     
     // 프로필 조회
-    READ_PROFILE_SUCCESS: "프로필 조회 성공"
+    READ_PROFILE_SUCCESS: "프로필 조회 성공",
+
+    // 게시글 생성
+    NO_POST_DATA: "작성된 게시글이 없습니다.",
+    POST_SUCCESS: "게시글 생성",
+
+    // 게시글 id로 조회
+    NO_ID: "id가 존재하지 않습니다.",
+    GET_ID_SUCCESS: "id 조회 성공",
+
+    // 게시글 변경
+    UPDATE_SUCCESS: "게시글 변경",
+
+    // 게시글 삭제
+    DELETE_SUCCESS: "게시글 삭제"
 };

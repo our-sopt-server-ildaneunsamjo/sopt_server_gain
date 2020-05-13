@@ -15,4 +15,12 @@ router.get('/', (req, res) => {
     res.status(200).send(result);
 });
 
+router.get('/post', (req, res) => {
+    const result = {
+        status: 200,
+        message: 'api/blog/post에 접근합니다.'
+    };
+    res.status(200).send(result);
+});
+
 module.exports = router;

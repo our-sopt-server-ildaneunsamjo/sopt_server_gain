@@ -4,6 +4,7 @@ let UserModel = require('../models/users');
 let util = require('../modules/util');
 let statusCode = require('../modules/statusCode');
 let resMessage = require('../modules/responseMessage');
+const crypto = require('crypto');
 // 변수명 수정할 때는 f2
 
 /* GET users listing. */
@@ -30,16 +31,25 @@ router.post('/signup', async (req, res) => {
           .send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_ID));
       return;
   }
-  UserModel.push({
-      id,
-      name,
-      password,
-      email
-  });
+  // password hash해서 salt 값과 함께 저장하기
+  const salt = crypto.randomBytes(32).toString('hex'); // randomBytes 메서드 사용해서 salt 생성 
+  // 100000 반복하는데 1초 정도 걸림 
+  const hashed = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha512').toString();
+  UserModel.push({id, name, hashed, salt, email});
+  // crypto.pbkdf2(password, salt.toString(), 100000, 32, 'sha512', (err, derivedKey) => {
+  //   if (err) throw err;
+  //   const hashed = derivedKey.toString('hex');
+  //   UserModel.push({id, name, hashed, salt, email});
+  // });
+
+  const data2 = {
+    userId: id,
+    hashedPw: hashed,
+    saltPw: salt
+  }
+
   res.status(statusCode.OK)
-      .send(util.success(statusCode.OK, resMessage.CREATED_USER, {
-          userId: id
-      }));
+      .send(util.success(statusCode.OK, resMessage.CREATED_USER, data2));
 });
 
 router.post('/signin', async (req, res) => {
@@ -61,15 +71,25 @@ router.post('/signin', async (req, res) => {
     .send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
   }
   // 비밀번호 확인 - 없다면 Miss match password 반환
-  if(user[0].password != password){
+  // if(user[0].password != password){
+  //   res.status(statusCode.BAD_REQUEST)
+  //   .send(util.fail(statusCode.BAD_REQUEST, resMessage.MISS_MATCH_PW));
+  //   return;
+  // }
+
+  // 해시값 이용해서 비밀번호 확인
+  // ** crypto.pbkdf2/pbkdf2Sync 함수 활용 방법 확실하게 외우기
+  const hash = crypto.pbkdf2Sync(password, user[0].salt, 100000, 32, 'sha512').toString();
+  if(user[0].hashed != hash){
     res.status(statusCode.BAD_REQUEST)
     .send(util.fail(statusCode.BAD_REQUEST, resMessage.MISS_MATCH_PW));
     return;
   }
+
   // 성공
   res.status(statusCode.OK)
   .send(util.success(statusCode.OK, resMessage.LOGIN_SUCCESS,
-    {userId: id}));
+    {userId: id, password: password, hashedPw: user[0].hashed, saltPw: user[0].salt}));
 });
 
 /**
@@ -85,22 +105,27 @@ router.post('/signin', async (req, res) => {
 router.get('/profile/:id', async (req, res) => {
   // request params 에서 데이터 가져오기
   const id = req.params.id;
-  const user = UserModel.filter(user => user.id == id)[0];
+  const user = UserModel.filter(user => user.id == id);
+  const user2 = UserModel.filter(user2 => user2.id == id)[0];
+  /**
+   * proData = {id: user.id, name: user.name};
+   */
 
   // 존재하는 아이디인지 확인 - 없다면 No user 반환
-  if (user === undefined) {
+  if (user.length == 0) {
     res.status(statusCode.BAD_REQUEST)
     .send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
     return;
   }
-  const idData = {
-    id: user.id,
-    name: user.name,
-    email: user.email
+  const proData = {
+    id: user[0].id,
+    name: user[0].name,
+    // pw: user[0].password
+    email: user[0].email
   }
-  // 성공 - login success와 함께 user Id 반환
+  // 성공 - login success와 함께 user Id 및 다른 정보 반환
   res.status(statusCode.OK)
-  .send(util.success(statusCode.OK, resMessage.READ_PROFILE_SUCCESS, idData)); 
+  .send(util.success(statusCode.OK, resMessage.READ_PROFILE_SUCCESS, proData)); 
 });
 
 module.exports = router;
