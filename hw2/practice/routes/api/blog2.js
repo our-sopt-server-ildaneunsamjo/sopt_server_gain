@@ -15,6 +15,7 @@ router.get('/', (req, res) => {
     res.status(200).send(result);
 });
 
+// 폴더 따로 생성 않고 다시 만듦~
 router.get('/post', (req, res) => {
     const result = {
         status: 200,
