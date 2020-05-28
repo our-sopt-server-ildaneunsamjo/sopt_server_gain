@@ -54,7 +54,7 @@ const user = {
         }
     
         // User의 아이디가 있는지 확인 - 없다면 NO_USER 반납
-        const user = await UserModel.getUserById(id);
+        const user = await UserModel.checkUser(id);
         if (user[0] === undefined) {
             return res.status(statusCode.BAD_REQUEST)
             .send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
@@ -68,8 +68,7 @@ const user = {
         }
     
         // console.log(user[0]);
-        // 로그인이 성공적으로 마쳤다면 - LOGIN_SUCCESS 전달
-        
+        // 로그인 성공적으로 마쳤다면 - LOGIN_SUCCESS 전달 
         const {token, _} = await jwt.sign(user[0]);
         
         res.status(statusCode.OK)

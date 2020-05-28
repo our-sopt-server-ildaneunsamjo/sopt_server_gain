@@ -16,14 +16,14 @@ const blog = {
             throw err;
         }
     },
-    getBlogById : async (blogidx) => {
+    getBlogByIdx : async (blogidx) => {
         const query = `SELECT * FROM ${table}, ${table1}
         WHERE ${table}.useridx = ${table1}.useridx AND ${table1}.blogidx = ${blogidx}`;
         // console.log(query);
         try {
             return await pool.queryParam(query);
         } catch (err) {
-            console.log('getBlogById Error: ', err);
+            console.log('getBlogByIdx Error: ', err);
             throw err;
         }
     },

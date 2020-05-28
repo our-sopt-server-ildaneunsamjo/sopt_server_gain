@@ -8,6 +8,7 @@ const TOKEN_EXPIRED = -3
 const TOKEN_INVALID = -2
 
 router.get('/local', async (req, res) => {
+    // 헤더에 있는 token 값 가져오기
     var token = req.headers.token;
     if (!token) {
         return res.json(util.fail(CODE.BAD_REQUEST, MSG.EMPTY_TOKEN));
@@ -17,14 +18,14 @@ router.get('/local', async (req, res) => {
         return res.json(util.fail(CODE.UNAUTHORIZED, MSG.EXPIRED_TOKEN));
     }
     if (user == TOKEN_INVALID) {
-        // console.log(user);
+        console.log(user);
         return res.json(util.fail(CODE.UNAUTHORIZED, MSG.INVALID_TOKEN));
     }
     if (user.idx == undefined) {
-        // console.log(user);
+        console.log(user);
         return res.json(util.fail(CODE.UNAUTHORIZED, MSG.INVALID_TOKEN));
     }
-    return res.json(util.success(CODE.OK, MSG.AUTH_SUCCESS));
+    return res.json(util.success(CODE.OK, MSG.AUTH_SUCCESS, {userIdx: user.idx, userName: user.name}));
 });
 
 module.exports = router;

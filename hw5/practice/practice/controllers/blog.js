@@ -2,6 +2,8 @@ const statusCode = require('../modules/statusCode');
 const resMessage = require('../modules/responseMessage');
 const util = require('../modules/util');
 const blogModel = require('../models/blog');
+const userModel = require('../models/user');
+const jwt= require('../modules/jwt');
 
 /* await 꼭 사용해줄 것 */
 
@@ -13,6 +15,12 @@ const blog = {
             res.status(statusCode.BAD_REQUEST)
             .send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
+        const result = await userModel.getUserByIdx(useridx);
+        console.log(result);
+        if (result[0] === undefined) {
+            return res.status(statusCode.BAD_REQUEST)
+            .send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
 
         const idx = await blogModel.newPost(useridx, content, createdAt);
         if (idx === -1) {
@@ -20,19 +28,23 @@ const blog = {
                 .send(util.fail(statusCode.DB_ERROR, resMessage.DB_ERROR));
         }
 
+        const blog = await blogModel.getBlogByIdx(idx);
+        const {token, _} = await jwt.sign(blog[0]);
+
+        console.log(token);
+
         res.status(statusCode.OK)
-            .send(util.success(statusCode.OK, resMessage.CREATE_BLOG, {BlogIdx: idx}));
+            .send(util.success(statusCode.OK, resMessage.CREATE_BLOG, {blogidx: idx, accessToken: token}));
 
     }, 
-    getBlogById : async (req, res) => {
+    getBlogByIdx : async (req, res) => {
         const blogidx = req.params.blogidx;
-
         
         if (await blogModel.checkBlogIdx(blogidx)) {
             return res.status(statusCode.BAD_REQUEST)
             .send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_BLOG));
         }
-        const result = await blogModel.getBlogById(blogidx);
+        const result = await blogModel.getBlogByIdx(blogidx);
         // console.log(result);
 
         const data = {
@@ -56,7 +68,7 @@ const blog = {
         }
         
         await blogModel.updateBlog(blogidx, content);
-        const info = await blogModel.getBlogById(blogidx);
+        const info = await blogModel.getBlogByIdx(blogidx);
 
         const data = {
             BlogIdx: blogidx,

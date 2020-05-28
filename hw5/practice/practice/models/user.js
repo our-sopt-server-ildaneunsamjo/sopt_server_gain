@@ -36,8 +36,8 @@ const user = {
             throw err;
         }
     },
-    getUserById: async (id) => {
-        const query = `SELECT * FROM ${table} WHERE id = '${id}'`;
+    getUserByIdx: async (useridx) => {
+        const query = `SELECT * FROM ${table} WHERE useridx = ${useridx}`;
         // query문 작성
         // pool module로 전달해서 결과값 받기
         // return await pool.queryParamArr(query, [id]);
@@ -45,7 +45,11 @@ const user = {
         try {
             return await pool.queryParam(query);
         } catch (err) {
-            console.log('getUserById Error : ', err);
+            if (err.errno == 1062) {
+                console.log('getUserByIdx ERROR : ', err.errno, err.code);
+                throw err;
+            }
+            console.log('getUserByIdx ERROR : ', err);
             throw err;
         }
     }
