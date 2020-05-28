@@ -1,4 +1,4 @@
 # Level1
 
 ## ERD
-![erd.PNG](.\image\erd.PNG "ERD")
+![erd.PNG](./image/erd.PNG "ERD")
