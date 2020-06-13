@@ -24,9 +24,7 @@ const user = {
         const query = `SELECT * FROM ${table} WHERE id = '${id}'`;
         try {
             const result = await pool.queryParam(query);
-            if (result.length === 0) {
-                return false;
-            } else return true;
+            return result;
         } catch (err) {
             if (err.errno == 1062) {
                 console.log('checkUser ERROR : ', err.errno, err.code);
