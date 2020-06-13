@@ -98,5 +98,46 @@ module.exports = {
         // 결과값은 프로필에 대한 이미지 전달
         const result = await UserModel.updateProfile(userIdx, profileImg);
         res.status(CODE.OK).send(util.success(CODE.OK, MSG.UPDATE_PROFILE_SUCCESS, result));
+    },
+    updateSelfies : async (req, res) => {
+        const userIdx = req.decoded.userIdx;
+        const selfies = req.files; // 이미지가 여러개라면 files에 저장됨 
+        // console.log(selfies);
+        // console.log(selfies[0].location);
+        // console.log(req.files[0].location);
+        if (selfies === undefined) {
+            return res.status(CODE.OK).send(util.fail(CODE.BAD_REQUEST, "이미지를 첨부해주세요"));
+        }
+
+        // image type check
+        for (var i in selfies) {
+            const type = selfies[i].mimetype.split('/')[1];
+            if (type !== 'jpeg' && type !== 'jpg' && type !== 'png') {
+                return res.status(CODE.OK).send(util.fail(CODE.BAD_REQUEST, MSG.UNSUPOORTED_TYPE));
+            }
+        }
+
+        for (var i in selfies) {
+            var result = await UserModel.updateSelfies(userIdx, selfies[i].location);
+            console.log(selfies[i].location);
+        }
+
+        const location = selfies.map(sf => sf.location); //?
+        res.status(CODE.OK).send(util.success(CODE.OK, selfies.length + "개의 이미지 저장 성공", {
+            selfies: location
+        }));
+    },
+    showAllSelfies : async (req, res) => {
+        const userIdx = req.decoded.userIdx;
+
+        const result = await UserModel.showAllSelfies(userIdx);
+
+        if (result[0] === undefined) {
+            return res.status(CODE.OK).send(util.fail(CODE.BAD_REQUEST, "이미지가 존재하지 않습니다."));
+        }
+
+        res.status(CODE.OK).send(util.success(CODE.OK, "이미지 모아보기 성공", {
+            selfies: result
+        }));
     }
 }
