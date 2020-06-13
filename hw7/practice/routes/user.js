@@ -30,6 +30,6 @@ router.post('/profile', AuthMiddleware.checkToken, upload.single('profile'), Use
     RESPONSE DATA : user profile
 */
 router.post('/selfies', AuthMiddleware.checkToken, upload.array('selfies', 5), UserController.updateSelfies);
-router.get('/selfies/all', AuthMiddleware.checkToken, UserController.showAllSelfies);
+router.get('/selfies/list', AuthMiddleware.checkToken, UserController.showAllSelfies);
 
 module.exports = router;
